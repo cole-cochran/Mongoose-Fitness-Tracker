@@ -1,43 +1,71 @@
 const router = require("express").Router();
-const workout = require ("../models/workout");
+const workout = require("../models/workout");
 
 router.get("/workout", (req, res) => {
-    workout.aggregate([
+  workout
+    .aggregate([
       {
         $addFields: {
-          totalDuration: { $sum: "$exercises.duration" }
-        }
-      }
+          totalDuration: { $sum: "$exercises.duration" },
+        },
+      },
     ])
-      .then(dbWorkout => {
-        console.log(dbWorkout)
-        res.json(dbWorkout);
-      })
-      .catch(err => {
-        console.log('workouts: ' + err)
-        res.status(400).json(err);
-      });
+    .then((dbWorkout) => {
+      console.log(dbWorkout);
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      console.log("workouts: " + err);
+      res.status(400).json(err);
+    });
 });
 
 router.put("/workouts/:id", (req, res) => {
-    
-    Workout.findOneAndUpdate(
-      {
-        _id: req.params.id
+  Workout.findOneAndUpdate(
+    {
+      _id: req.params.id,
+    },
+    {
+      $push: {
+        exercises: { ...req.body },
       },
-      {
-        $push: {
-          exercises: { ...req.body }
-        }
-      },
-    )
-    .then(dbWorkout => {
-        res.json(dbWorkout);
-      })
-      .catch(err => {
-        res.json(err);
-      });
     }
-);
+  )
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
 
+router.post("/workouts", ({ body }, res) => {
+  Workout.create(body)
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      console.log("post: " + err);
+      res.status(400).json(err);
+    });
+});
+
+router.get("/workouts/range", (req, res) => {
+  Workout.aggregate([
+    { $limit: 7 },
+    {
+      $addFields: {
+        totalDuration: { $sum: "$exercises.duration" },
+      },
+    },
+  ])
+    .then((dbWorkout) => {
+      console.log(dbWorkout);
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      console.log("range: " + err);
+      res.status(400).json(err);
+    });
+});
 module.exports = router;
