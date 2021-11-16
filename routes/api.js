@@ -19,4 +19,25 @@ router.get("/workout", (req, res) => {
       });
 });
 
+router.put("/workouts/:id", (req, res) => {
+    
+    Workout.findOneAndUpdate(
+      {
+        _id: req.params.id
+      },
+      {
+        $push: {
+          exercises: { ...req.body }
+        }
+      },
+    )
+    .then(dbWorkout => {
+        res.json(dbWorkout);
+      })
+      .catch(err => {
+        res.json(err);
+      });
+    }
+);
+
 module.exports = router;
