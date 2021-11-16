@@ -19,3 +19,4 @@ router.get("/activities", (req, res) => {
       });
 });
 
+module.exports = router;
